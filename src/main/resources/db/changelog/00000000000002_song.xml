@@ -1,0 +1,118 @@
+<databaseChangeLog 
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog 
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+
+	<changeSet id="00000000000001-seq" author="kamsan">
+        <createSequence sequenceName="song_generator" startValue="1" incrementBy="1"/>
+    </changeSet>
+    <!-- SONG TABLE -->
+    <changeSet id="00000000000001" author="kamsan">
+        <createTable tableName="song">
+            <column name="id" type="bigint">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="public_id" type="${uuidType}">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="title" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="artist_name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="duration" type="bigint"/>
+
+             <column name="cover" type="${blobType}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="cover_content_type" type="varchar(255)">
+                <constraints nullable="false" />
+            </column>
+
+             <column name="created_date" type="timestamp"/>
+            <column name="last_modified_date" type="timestamp"/>
+        </createTable>
+    </changeSet>
+
+	<changeSet id="00000000000002-seq" author="kamsan">
+        <createSequence sequenceName="song_content_generator" startValue="1" incrementBy="1"/>
+    </changeSet>
+    <!-- SONG CONTENT TABLE -->
+    <changeSet id="00000000000002" author="kamsan">
+        <createTable tableName="song_content">
+            <column name="id" type="bigint">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="song_id" type="bigint">
+                <constraints nullable="false" unique="true" foreignKeyName="fk_song_content_song" referencedTableName="song" referencedColumnNames="id" deleteCascade="true"/>
+            </column>
+            <column name="file" type="${blobType}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="file_content_type" type="varchar(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="created_date" type="timestamp"/>
+            <column name="last_modified_date" type="timestamp"/>
+        </createTable>
+    </changeSet>
+
+    <!-- PLAYLIST TABLE -->
+    
+    <changeSet id="00000000000003-seq" author="kamsan">
+        <createSequence sequenceName="playlist_generator" startValue="1" incrementBy="1"/>
+    </changeSet>
+    <changeSet id="00000000000003" author="kamsan">
+        <createTable tableName="playlist">
+            <column name="id" type="bigint">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="public_id" type="${uuidType}">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="title" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_public_id" type="${uuidType}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="timestamp"/>
+            <column name="last_modified_date" type="timestamp"/>
+        </createTable>
+        <addForeignKeyConstraint 
+        					baseColumnNames="user_public_id" baseTableName="playlist"
+                         	constraintName="fk_user_id" deferrable="false"
+                         	initiallyDeferred="false" referencedColumnNames="public_id"
+                         	referencedTableName="spotify_user" validate="true"/>
+    </changeSet>
+
+    <!-- PLAYLIST_SONG TABLE -->
+    <changeSet id="00000000000004" author="kamsan">
+        <createTable tableName="playlist_song">
+            <column name="playlist_id" type="bigint">
+            </column>
+            <column name="song_id" type="bigint">
+            </column>
+            <column name="created_date" type="timestamp"/>
+            <column name="last_modified_date" type="timestamp"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="playlist_id"
+                             baseTableName="playlist_song"
+                             constraintName="fk_playlist_id"
+                             referencedColumnNames="id"
+                             referencedTableName="playlist"   
+                             onDelete="CASCADE"/>
+
+	    <addForeignKeyConstraint baseColumnNames="song_id"
+                             baseTableName="playlist_song"
+                             constraintName="fk_song_id"
+                             referencedColumnNames="id"
+                             referencedTableName="song"   
+                             onDelete="CASCADE"/>
+
+        <addPrimaryKey tableName="playlist_song" columnNames="playlist_id, song_id" constraintName="pk_playlist_song"/>
+    </changeSet>
+</databaseChangeLog>
