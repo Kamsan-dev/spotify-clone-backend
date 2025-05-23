@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.auth0.json.auth.UserInfo;
 
 import fr.kamsan.spotify_clone_backend.infrastructure.config.SecurityUtils;
+import fr.kamsan.spotify_clone_backend.playlist.application.service.PlaylistService;
 import fr.kamsan.spotify_clone_backend.sharedkernel.exception.ApiException;
 import fr.kamsan.spotify_clone_backend.user.application.dto.ReadUserDTO;
 import fr.kamsan.spotify_clone_backend.user.domain.User;
@@ -26,6 +27,7 @@ public class UserService {
 
 	private final UserRepository userRepository;
 	private final UserMapper userMapper;
+	private final PlaylistService playlistService;
 	private final Auth0Service auth0Service;
 	private static final String UPDATED_AT_KEY = "updated_at";
 
@@ -60,7 +62,10 @@ public class UserService {
         		}
         	}
         } else {
-        	userRepository.saveAndFlush(user);
+        	// Case ->  new user : we register him and create his liked songs playlist.
+        	User newSavedUser = userRepository.saveAndFlush(user);
+        	//playlistService.createLikedSongsPlaylist(newSavedUser);
+        	
         }
 	}
 
@@ -74,7 +79,6 @@ public class UserService {
             userToUpdate.setImageUrl(user.getImageUrl());
             userRepository.saveAndFlush(userToUpdate);
 		}
-		
 	}
 	
     public Optional<ReadUserDTO> getByPublicId(UUID publicId) {
