@@ -27,9 +27,9 @@ public class UserService {
 
 	private final UserRepository userRepository;
 	private final UserMapper userMapper;
-	private final PlaylistService playlistService;
 	private final Auth0Service auth0Service;
 	private static final String UPDATED_AT_KEY = "updated_at";
+	private final PlaylistService playlistService;
 
 	@Transactional(readOnly = true)
 	public ReadUserDTO getAuthenticatedUserFromSecurityContext() {
@@ -62,10 +62,8 @@ public class UserService {
         		}
         	}
         } else {
-        	// Case ->  new user : we register him and create his liked songs playlist.
-        	User newSavedUser = userRepository.saveAndFlush(user);
-        	//playlistService.createLikedSongsPlaylist(newSavedUser);
-        	
+        	User savedUser = userRepository.saveAndFlush(user);
+        	playlistService.createLikedSongsPlaylist(savedUser);
         }
 	}
 
@@ -85,5 +83,9 @@ public class UserService {
         Optional<User> oneByPublicId = userRepository.findOneByPublicId(publicId);
         return oneByPublicId.map(userMapper::userToReadUserDTO);
     }
+    
+	public Optional<ReadUserDTO> getByEmail(String email){
+		return userRepository.findOneByEmail(email).map(userMapper::userToReadUserDTO);
+	}
 
 }

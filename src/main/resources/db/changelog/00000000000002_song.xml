@@ -55,7 +55,7 @@
             <column name="created_date" type="timestamp"/>
             <column name="last_modified_date" type="timestamp"/>
         </createTable>
-        <addForeignKeyConstraint 
+                <addForeignKeyConstraint 
 	        baseTableName="song_content"
 	        baseColumnNames="song_id"
 	        constraintName="fk_song_content_song"

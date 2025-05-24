@@ -1,6 +1,7 @@
 package fr.kamsan.spotify_clone_backend.song.application.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import fr.kamsan.spotify_clone_backend.song.application.dto.ReadSongInfoDTO;
 import fr.kamsan.spotify_clone_backend.song.application.dto.SaveSongDTO;
@@ -12,9 +13,11 @@ import fr.kamsan.spotify_clone_backend.song.repository.SongContentRepository;
 import fr.kamsan.spotify_clone_backend.song.repository.SongRepository;
 import fr.kamsan.spotify_clone_backend.user.application.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class SongService {
 	
 	private final SongRepository songRepository;
@@ -24,13 +27,14 @@ public class SongService {
 	private final UserService userService;
 	
 	
+	@Transactional
 	public ReadSongInfoDTO saveSong(SaveSongDTO saveSongDTO) {
 		Song newSong = songMapper.saveSongDTOToSong(saveSongDTO);
 		Song savedSong = songRepository.saveAndFlush(newSong);
 		
-		SongContent saveContent = songContentMapper.saveContentDTOToSongContent(saveSongDTO.songContent());
-		saveContent.setSong(savedSong);
-		songContentRepository.saveAndFlush(saveContent);
+		SongContent songContent = songContentMapper.saveContentDTOToSongContent(saveSongDTO.songContent());
+		songContent.setSong(savedSong);
+		songContentRepository.save(songContent);
 		
 		return songMapper.songToReadSongInfoDTO(savedSong);
 	}

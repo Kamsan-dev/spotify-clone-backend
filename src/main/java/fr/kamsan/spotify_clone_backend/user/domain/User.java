@@ -10,6 +10,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.Getter;
@@ -40,5 +41,12 @@ public class User extends AbstractAuditingEntity<Long>{
     @UuidGenerator
 	@Column(name = "public_id", nullable = false)
 	private UUID publicId;
+    
+//    @PrePersist
+//    public void ensurePublicId() {
+//        if (this.publicId == null) {
+//            this.publicId = UUID.randomUUID();
+//        }
+//    }
 
 }

@@ -17,8 +17,8 @@ public interface SongMapper {
     @Mapping(source = "cover.fileContentType", target = "coverContentType")
     @Mapping(source = "cover.file", target = "cover")
     @Mapping(source = "duration.value", target = "duration")
-    @Mapping(source = "title.value", target = "artistName")
-    @Mapping(source = "artist.value", target = "title")
+    @Mapping(source = "title.value", target = "title")
+    @Mapping(source = "artist.value", target = "artistName")
 	Song saveSongDTOToSong(SaveSongDTO saveSongDTO);
     
     
@@ -28,6 +28,8 @@ public interface SongMapper {
     @Mapping(source = "title", target = "title.value")
     @Mapping(source = "duration", target = "duration.value")
     @Mapping(source = "cover", target = "cover.file")
+    @Mapping(source = "coverContentType", target="cover.fileContentType")
+    @Mapping(source = "publicId", target="publicId")
     ReadSongInfoDTO songToReadSongInfoDTO(Song song);
 
 }

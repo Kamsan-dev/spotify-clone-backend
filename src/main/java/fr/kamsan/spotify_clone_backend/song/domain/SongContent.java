@@ -15,13 +15,14 @@ import lombok.Setter;
 
 @Entity
 @RequiredArgsConstructor
+@Table(name="song_content")
 @Getter
 @Setter
-@Table(name="song_content")
 public class SongContent extends AbstractAuditingEntity<Long>{
 	
-	@Id
-	private Long id;
+    @Id
+    @Column(name = "song_id")
+    private Long songId;
 
     @MapsId
     @OneToOne
@@ -35,4 +36,8 @@ public class SongContent extends AbstractAuditingEntity<Long>{
     @Column(name = "file_content_type")
     private String fileContentType;
 
+	@Override
+	public Long getId() {
+		return this.songId;
+	}
 }
