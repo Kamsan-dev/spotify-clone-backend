@@ -35,6 +35,9 @@ public class SongContent extends AbstractAuditingEntity<Long>{
 
     @Column(name = "file_content_type")
     private String fileContentType;
+    
+	@Column(name = "duration", nullable=false)
+	private Long duration;
 
 	@Override
 	public Long getId() {

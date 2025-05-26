@@ -4,10 +4,13 @@ import java.io.IOException;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -28,7 +31,7 @@ import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/songs")
 @RequiredArgsConstructor
 public class SongResource {
 
@@ -37,7 +40,7 @@ public class SongResource {
 	private final UserService userService;
 	private final ObjectMapper objectMapper = new ObjectMapper();
 
-	@PostMapping(value = "/songs", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	@PostMapping(value = "/save", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<ReadSongInfoDTO> add(@RequestPart(name = "cover") MultipartFile cover,
 			@RequestPart(name = "file") MultipartFile file, @RequestPart(name = "dto") String saveSongDTOString)
 			throws IOException {
@@ -59,6 +62,13 @@ public class SongResource {
 		} else {
 			return ResponseEntity.ok(songService.saveSong(saveSongDTO));
 		}
+	}
+
+	@GetMapping("/get-all")
+	public ResponseEntity<Page<ReadSongInfoDTO>> getAll(Pageable pageable) {
+
+		return ResponseEntity.ok(songService.getAllSongs(pageable));
+
 	}
 
 	private static SongContentDTO mapMultipartFileToSongContentDTO(MultipartFile file) {

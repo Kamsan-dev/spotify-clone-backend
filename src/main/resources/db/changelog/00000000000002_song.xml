@@ -23,8 +23,6 @@
             <column name="artist_name" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="duration" type="bigint"/>
-
              <column name="cover" type="${blobType}">
                 <constraints nullable="false"/>
             </column>
@@ -50,6 +48,9 @@
                 <constraints nullable="false"/>
             </column>
             <column name="file_content_type" type="varchar(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="duration" type="bigint">
                 <constraints nullable="false" />
             </column>
             <column name="created_date" type="timestamp"/>

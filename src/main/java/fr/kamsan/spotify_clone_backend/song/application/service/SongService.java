@@ -1,10 +1,27 @@
 package fr.kamsan.spotify_clone_backend.song.application.service;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.mpatric.mp3agic.InvalidDataException;
+import com.mpatric.mp3agic.Mp3File;
+import com.mpatric.mp3agic.UnsupportedTagException;
+
+import fr.kamsan.spotify_clone_backend.sharedkernel.exception.ApiException;
 import fr.kamsan.spotify_clone_backend.song.application.dto.ReadSongInfoDTO;
 import fr.kamsan.spotify_clone_backend.song.application.dto.SaveSongDTO;
+import fr.kamsan.spotify_clone_backend.song.application.dto.vo.SongDurationVO;
 import fr.kamsan.spotify_clone_backend.song.domain.Song;
 import fr.kamsan.spotify_clone_backend.song.domain.SongContent;
 import fr.kamsan.spotify_clone_backend.song.mapper.SongContentMapper;
@@ -31,11 +48,68 @@ public class SongService {
 	public ReadSongInfoDTO saveSong(SaveSongDTO saveSongDTO) {
 		Song newSong = songMapper.saveSongDTOToSong(saveSongDTO);
 		Song savedSong = songRepository.saveAndFlush(newSong);
-		
 		SongContent songContent = songContentMapper.saveContentDTOToSongContent(saveSongDTO.songContent());
+		
+		try {
+		    Mp3File mp3File = convertByteArrayToMp3File(saveSongDTO.songContent().file());		    
+		    if (mp3File.hasId3v2Tag() || mp3File.hasId3v1Tag()) {
+		        long durationInSeconds = mp3File.getLengthInMilliseconds();
+		        songContent.setDuration(durationInSeconds);
+		    }
+
+		} catch (Exception e) {
+		    throw new ApiException("Failed to extract MP3 duration from audio track.");
+		}
+		
 		songContent.setSong(savedSong);
 		songContentRepository.save(songContent);
 		
-		return songMapper.songToReadSongInfoDTO(savedSong);
+		ReadSongInfoDTO readSongInfoDTO = songMapper.songToReadSongInfoDTO(savedSong);
+		readSongInfoDTO.setDuration(new SongDurationVO(songContent.getDuration()));
+		
+		return readSongInfoDTO;
+	}
+	
+	public Page<ReadSongInfoDTO> getAllSongs(Pageable pageable) {
+		
+		Page<Song> allSongs = songRepository.findAll(pageable);
+		List<Song> songsList = allSongs.getContent();
+		
+		
+		List<Long> songsIds = songsList.stream().map(Song::getId).toList();
+		
+		// get duration of songs by ids
+		
+		List<Object[]> idAndDurationList = songContentRepository.findSongDurationsBySongIds(songsIds);
+		Map<Long, Long> durationsById = idAndDurationList.stream()
+			    .collect(Collectors.toMap(
+			        arr -> (Long) arr[0], // id
+			        arr -> (Long) arr[1]  // duration
+			    ));
+		
+		List<ReadSongInfoDTO> readSongInfoDTOList = songsList.stream()
+			    .map(song -> {
+			        ReadSongInfoDTO dto = songMapper.songToReadSongInfoDTO(song);
+			        dto.setDuration(new SongDurationVO(durationsById.get(song.getId())));
+			        return dto;
+			    })
+			    .toList();
+		
+		return new PageImpl<>(readSongInfoDTOList, pageable, allSongs.getTotalElements());
+	}
+	
+	
+	private Mp3File convertByteArrayToMp3File(byte[] arr) throws IOException, UnsupportedTagException, InvalidDataException {
+	    byte[] mp3Bytes = arr;
+
+	    File tempFile = File.createTempFile("upload", ".mp3");
+	    tempFile.deleteOnExit();
+
+	    try (FileOutputStream fos = new FileOutputStream(tempFile)) {
+	        fos.write(mp3Bytes);
+	    }
+
+	    Mp3File mp3File = new Mp3File(tempFile);
+	    return mp3File;
 	}
 }

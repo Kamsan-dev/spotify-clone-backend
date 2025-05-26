@@ -16,17 +16,16 @@ public interface SongMapper {
     @Mapping(target = "createdDate", ignore = true)
     @Mapping(source = "cover.fileContentType", target = "coverContentType")
     @Mapping(source = "cover.file", target = "cover")
-    @Mapping(source = "duration.value", target = "duration")
     @Mapping(source = "title.value", target = "title")
     @Mapping(source = "artist.value", target = "artistName")
 	Song saveSongDTOToSong(SaveSongDTO saveSongDTO);
     
     
     
-    @Mapping(target = "isFavorite", ignore = true)
+    @Mapping(target = "favorite", ignore = true)
+    @Mapping(target = "duration", ignore = true)
     @Mapping(source = "artistName", target = "artist.value")
     @Mapping(source = "title", target = "title.value")
-    @Mapping(source = "duration", target = "duration.value")
     @Mapping(source = "cover", target = "cover.file")
     @Mapping(source = "coverContentType", target="cover.fileContentType")
     @Mapping(source = "publicId", target="publicId")
