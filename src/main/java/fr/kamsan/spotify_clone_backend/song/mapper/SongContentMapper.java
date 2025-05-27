@@ -13,9 +13,12 @@ public interface SongContentMapper {
 	
     @Mapping(target = "song", ignore = true)
     @Mapping(target = "lastModifiedDate", ignore = true)
+    @Mapping(target = "duration", ignore = true)
     @Mapping(target = "songId", ignore = true)
     @Mapping(target = "createdDate", ignore = true)
 	SongContent saveContentDTOToSongContent(SongContentDTO songContent);
+    
+    SongContentDTO songContentToSongContentDTO(SongContent songContent);
     
 
 }

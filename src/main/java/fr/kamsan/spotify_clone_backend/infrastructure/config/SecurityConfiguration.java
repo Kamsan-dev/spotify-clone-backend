@@ -37,6 +37,7 @@ public class SecurityConfiguration {
        requestHandler.setCsrfRequestAttributeName(null);
 		http.cors(Customizer.withDefaults()).authorizeHttpRequests(authorize -> authorize
 				.requestMatchers(HttpMethod.GET, "api/songs/get-all").permitAll()
+				.requestMatchers(HttpMethod.GET, "api/songs/get-content").permitAll()
                 .anyRequest()
                 .authenticated())
                .csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
