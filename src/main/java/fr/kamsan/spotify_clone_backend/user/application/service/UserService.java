@@ -27,9 +27,10 @@ public class UserService {
 
 	private final UserRepository userRepository;
 	private final UserMapper userMapper;
+	private final UserPlaylistService userPlaylistService;
 	private final Auth0Service auth0Service;
 	private static final String UPDATED_AT_KEY = "updated_at";
-	private final PlaylistService playlistService;
+	
 
 	@Transactional(readOnly = true)
 	public ReadUserDTO getAuthenticatedUserFromSecurityContext() {
@@ -63,7 +64,7 @@ public class UserService {
         	}
         } else {
         	User savedUser = userRepository.saveAndFlush(user);
-        	playlistService.createLikedSongsPlaylist(savedUser);
+        	userPlaylistService.createLikedSongsPlaylist(savedUser);
         }
 	}
 

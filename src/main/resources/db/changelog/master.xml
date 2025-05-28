@@ -13,4 +13,5 @@
     <include file="db/changelog/00000000000001_user.xml" relativeToChangelogFile="false"/>
     <include file="db/changelog/00000000000002_song.xml" relativeToChangelogFile="false"/>
 
+
 </databaseChangeLog>

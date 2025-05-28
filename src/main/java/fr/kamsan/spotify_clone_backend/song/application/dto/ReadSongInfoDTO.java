@@ -1,5 +1,6 @@
 package fr.kamsan.spotify_clone_backend.song.application.dto;
 
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 import fr.kamsan.spotify_clone_backend.song.application.dto.sub.SongCoverDTO;
@@ -27,5 +28,10 @@ public class ReadSongInfoDTO {
 	private UUID publicId;
 	@NotNull
 	private boolean isFavorite;
+	
+    private OffsetDateTime dateAdded;    // nullable if not part of any playlist
 
+    private UUID playlistPublicId;       // nullable if no playlist association
+
+	
 }

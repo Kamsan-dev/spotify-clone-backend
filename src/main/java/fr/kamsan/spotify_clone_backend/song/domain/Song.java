@@ -39,6 +39,9 @@ public class Song extends AbstractAuditingEntity<Long>{
 	@Column(name = "artist_name", nullable=false)
 	private String artistName;
 	
+	@Column(name = "duration", nullable=false)
+	private Long duration;
+	
     @Lob
     @Column(name = "cover", nullable = false)
     private byte[] cover;

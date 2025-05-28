@@ -6,9 +6,10 @@ import java.util.UUID;
 
 import org.hibernate.annotations.UuidGenerator;
 
+import fr.kamsan.spotify_clone_backend.playlist.domain.embedded.PlaylistSong;
 import fr.kamsan.spotify_clone_backend.sharedkernel.domain.AbstractAuditingEntity;
-import fr.kamsan.spotify_clone_backend.song.domain.Song;
 import fr.kamsan.spotify_clone_backend.user.domain.User;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -16,9 +17,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.Getter;
@@ -47,20 +47,18 @@ public class Playlist extends AbstractAuditingEntity<Long> {
 	@Column(name="is_liked_songs")
 	private boolean isLikedSongs;
 
-//	@UuidGenerator
-//	@Column(name = "user_public_id", nullable = false)
-//	private UUID userPublicId;
-	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_public_id", referencedColumnName = "public_id", nullable = false)
 	private User user;
 	
 	
-    @ManyToMany
-    @JoinTable(name = "playlist_song",
-            joinColumns = {@JoinColumn(name = "playlist_id", referencedColumnName = "id")},
-            inverseJoinColumns = {@JoinColumn(name = "song_id", referencedColumnName = "id")})
-    private List<Song> songs = new ArrayList<>();
+//    @ManyToMany
+//    @JoinTable(name = "playlist_song",
+//            joinColumns = {@JoinColumn(name = "playlist_id", referencedColumnName = "id")},
+//            inverseJoinColumns = {@JoinColumn(name = "song_id", referencedColumnName = "id")})
+//    private List<Song> songs = new ArrayList<>();
 	
-
+	@OneToMany(mappedBy = "playlist", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<PlaylistSong> playlistSongs = new ArrayList<>();
+    
 }

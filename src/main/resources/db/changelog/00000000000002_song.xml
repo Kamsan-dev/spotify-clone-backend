@@ -23,6 +23,9 @@
             <column name="artist_name" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
+             <column name="duration" type="bigint">
+                <constraints nullable="false" />
+            </column>
              <column name="cover" type="${blobType}">
                 <constraints nullable="false"/>
             </column>
@@ -103,6 +106,9 @@
             <column name="playlist_id" type="bigint">
             </column>
             <column name="song_id" type="bigint">
+            </column>
+             <column name="created_at" type="timestamp with time zone">
+                <constraints nullable="false"/>
             </column>
             <column name="created_date" type="timestamp"/>
             <column name="last_modified_date" type="timestamp"/>

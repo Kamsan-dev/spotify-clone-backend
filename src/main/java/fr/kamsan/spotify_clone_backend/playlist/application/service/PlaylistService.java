@@ -1,10 +1,22 @@
 package fr.kamsan.spotify_clone_backend.playlist.application.service;
 
+import java.util.UUID;
+
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import fr.kamsan.spotify_clone_backend.playlist.domain.Playlist;
+import fr.kamsan.spotify_clone_backend.playlist.domain.embedded.PlaylistSong;
+import fr.kamsan.spotify_clone_backend.playlist.domain.embedded.PlaylistSongId;
 import fr.kamsan.spotify_clone_backend.playlist.repository.PlaylistRepository;
-import fr.kamsan.spotify_clone_backend.user.domain.User;
+import fr.kamsan.spotify_clone_backend.playlist.repository.PlaylistSongRepository;
+import fr.kamsan.spotify_clone_backend.sharedkernel.exception.ApiException;
+import fr.kamsan.spotify_clone_backend.song.application.dto.ReadSongInfoDTO;
+import fr.kamsan.spotify_clone_backend.song.domain.Song;
+import fr.kamsan.spotify_clone_backend.song.mapper.SongMapper;
+import fr.kamsan.spotify_clone_backend.song.repository.SongRepository;
+import fr.kamsan.spotify_clone_backend.user.application.dto.ReadUserDTO;
+import fr.kamsan.spotify_clone_backend.user.application.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -12,16 +24,42 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class PlaylistService {
-	
-	
+
 	private final PlaylistRepository playlistRepository;
-	
-	public void createLikedSongsPlaylist(User user) {
-		Playlist newPlaylist = new Playlist();
-		newPlaylist.setTitle("Liked Songs");
-		newPlaylist.setUser(user);
-		newPlaylist.setLikedSongs(true);
-		playlistRepository.save(newPlaylist);
+	private final PlaylistSongRepository playlistSongRepository;
+	private final SongRepository songRepository;
+	private final UserService userService;
+	private final SongMapper songMapper;
+
+	@Transactional
+	public ReadSongInfoDTO addSongToPlaylist(UUID playlistPublicId, UUID songPublicId) {
+
+		Song song = songRepository.findByPublicId(songPublicId).orElseThrow(
+				() -> new ApiException(String.format("Cannot retrieve song with public id %s", songPublicId)));
+
+		ReadUserDTO connectedUser = userService.getAuthenticatedUserFromSecurityContext();
+
+		Playlist playlist = playlistRepository
+				.findByPublicIdAndUser_PublicId(playlistPublicId, connectedUser.publicId())
+				.orElseThrow(() -> new ApiException(
+						String.format("Cannot retrieve playlist with public id %s", playlistPublicId)));
+
+		PlaylistSong playlistSong = new PlaylistSong();
+		PlaylistSongId id = new PlaylistSongId();
+		id.setPlaylistId(playlist.getId());
+		id.setSongId(song.getId());
+		playlistSong.setId(id);
+		playlistSong.setPlaylist(playlist);
+		playlistSong.setSong(song);
+
+		PlaylistSong savePlaylistSong = playlistSongRepository.save(playlistSong);
+
+		ReadSongInfoDTO songToReadSongInfoDTO = songMapper.songToReadSongInfoDTO(song);
+		songToReadSongInfoDTO.setFavorite(true);
+		songToReadSongInfoDTO.setPlaylistPublicId(playlistPublicId);
+		songToReadSongInfoDTO.setDateAdded(savePlaylistSong.getCreatedAt());
+
+		return songToReadSongInfoDTO;
 	}
 
 }

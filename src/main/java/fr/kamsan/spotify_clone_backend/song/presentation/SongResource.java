@@ -1,4 +1,4 @@
-package fr.kamsan.spotify_clone_backend.song.resource;
+package fr.kamsan.spotify_clone_backend.song.presentation;
 
 import java.io.IOException;
 import java.util.Set;
@@ -73,9 +73,7 @@ public class SongResource {
 
 	@GetMapping("/get-content")
 	public ResponseEntity<SongContentDTO> getAll(@RequestParam UUID publicId) {
-
 		return ResponseEntity.ok(songService.getOne(publicId));
-
 	}
 
 	private static SongContentDTO mapMultipartFileToSongContentDTO(MultipartFile file) {

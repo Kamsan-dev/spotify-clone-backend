@@ -48,7 +48,6 @@ public class SongService {
 	@Transactional
 	public ReadSongInfoDTO saveSong(SaveSongDTO saveSongDTO) {
 		Song newSong = songMapper.saveSongDTOToSong(saveSongDTO);
-		Song savedSong = songRepository.saveAndFlush(newSong);
 		SongContent songContent = songContentMapper.saveContentDTOToSongContent(saveSongDTO.songContent());
 
 		try {
@@ -56,12 +55,14 @@ public class SongService {
 			if (mp3File.hasId3v2Tag() || mp3File.hasId3v1Tag()) {
 				long durationInSeconds = mp3File.getLengthInMilliseconds();
 				songContent.setDuration(durationInSeconds);
+				newSong.setDuration(durationInSeconds);
 			}
 
 		} catch (Exception e) {
 			throw new ApiException("Failed to extract MP3 duration from audio track.");
 		}
 
+		Song savedSong = songRepository.saveAndFlush(newSong);
 		songContent.setSong(savedSong);
 		songContentRepository.save(songContent);
 

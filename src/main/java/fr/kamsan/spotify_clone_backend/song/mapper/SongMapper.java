@@ -13,6 +13,7 @@ public interface SongMapper {
     @Mapping(target = "publicId", ignore = true)
     @Mapping(target = "lastModifiedDate", ignore = true)
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "duration", ignore = true)
     @Mapping(target = "createdDate", ignore = true)
     @Mapping(source = "cover.fileContentType", target = "coverContentType")
     @Mapping(source = "cover.file", target = "cover")
@@ -24,6 +25,9 @@ public interface SongMapper {
     
     @Mapping(target = "favorite", ignore = true)
     @Mapping(target = "duration", ignore = true)
+    @Mapping(target = "dateAdded", ignore = true)
+    @Mapping(target = "playlistPublicId", ignore = true)
+    @Mapping(source = "duration", target = "duration.value")
     @Mapping(source = "artistName", target = "artist.value")
     @Mapping(source = "title", target = "title.value")
     @Mapping(source = "cover", target = "cover.file")
