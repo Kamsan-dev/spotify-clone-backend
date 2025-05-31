@@ -38,6 +38,7 @@ public class SecurityConfiguration {
 		http.cors(Customizer.withDefaults()).authorizeHttpRequests(authorize -> authorize
 				.requestMatchers(HttpMethod.GET, "api/songs/get-all").permitAll()
 				.requestMatchers(HttpMethod.GET, "api/songs/get-content").permitAll()
+				.requestMatchers(HttpMethod.GET, "api/songs/get-all").permitAll()
                 .anyRequest()
                 .authenticated())
                .csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())

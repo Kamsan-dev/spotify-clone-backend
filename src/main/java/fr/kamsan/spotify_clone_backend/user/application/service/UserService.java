@@ -88,5 +88,8 @@ public class UserService {
 	public Optional<ReadUserDTO> getByEmail(String email){
 		return userRepository.findOneByEmail(email).map(userMapper::userToReadUserDTO);
 	}
-
+	
+	public Optional<User> getUserByPublicId(UUID publicId){
+		return userRepository.findOneByPublicId(publicId);
+	}
 }

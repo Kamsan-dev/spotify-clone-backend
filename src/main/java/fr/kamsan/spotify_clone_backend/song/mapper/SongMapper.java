@@ -26,6 +26,7 @@ public interface SongMapper {
     @Mapping(target = "favorite", ignore = true)
     @Mapping(target = "duration", ignore = true)
     @Mapping(target = "dateAdded", ignore = true)
+    @Mapping(target = "playlistPublicIds", ignore = true)
     @Mapping(target = "playlistPublicId", ignore = true)
     @Mapping(source = "duration", target = "duration.value")
     @Mapping(source = "artistName", target = "artist.value")
