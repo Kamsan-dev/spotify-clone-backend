@@ -14,10 +14,6 @@ public interface SongContentRepository extends JpaRepository<SongContent, Long>{
 	@Query("SELECT sc.id, sc.duration from SongContent sc WHERE sc.id IN :ids")
 	List<Object[]> findSongDurationsBySongIds(List<Long> ids);
 	
-	
-//	@Query("SELECT SongContent sc FROM SongContent sc JOIN Song s on s.id = sc.id WHERE s.publicId = :publicId")
-//	SongContent findSongContentBySongPublicId(UUID publicId);
-	
 	Optional<SongContent> findOneBySongPublicId(UUID publicId);
 
 }

@@ -65,8 +65,44 @@ public class PlaylistService {
 		songToReadSongInfoDTO.setFavorite(true);
 		songToReadSongInfoDTO.setPlaylistPublicId(playlistPublicId);
 		songToReadSongInfoDTO.setDateAdded(savePlaylistSong.getCreatedAt());
+		
+		List<UUID> playlistPublicIdsBySongPublicId = playlistSongRepository
+				.findPlaylistPublicIdsBySongPublicId(song.getPublicId(), connectedUser.publicId());
+		songToReadSongInfoDTO.setPlaylistPublicIds(playlistPublicIdsBySongPublicId);
+		
+		if (playlistPublicIdsBySongPublicId.size() > 0) {
+			songToReadSongInfoDTO.setFavorite(true);
+		}
 
 		return songToReadSongInfoDTO;
+	}
+
+	@Transactional
+	public ReadSongInfoDTO deleteSongFromPlaylist(UUID playlistPublicId, UUID songPublicId) {
+		Song song = songRepository.findByPublicId(songPublicId).orElseThrow(
+				() -> new ApiException(String.format("Cannot retrieve song with public id %s", songPublicId)));
+
+		ReadUserDTO connectedUser = userService.getAuthenticatedUserFromSecurityContext();
+
+		Playlist playlist = playlistRepository
+				.findByPublicIdAndUser_PublicId(playlistPublicId, connectedUser.publicId())
+				.orElseThrow(() -> new ApiException(
+						String.format("Cannot retrieve playlist with public id %s", playlistPublicId)));
+
+		Long deleteSuccess = playlistSongRepository.deleteByPlaylist_publicIdAndSong_publicId(playlistPublicId,
+				songPublicId);
+		if (deleteSuccess > 0) {
+			ReadSongInfoDTO readSongInfoDTO = songMapper.songToReadSongInfoDTO(song);
+			List<UUID> playlistPublicIdsBySongPublicId = playlistSongRepository
+					.findPlaylistPublicIdsBySongPublicId(song.getPublicId(), connectedUser.publicId());
+			readSongInfoDTO.setPlaylistPublicIds(playlistPublicIdsBySongPublicId);
+			if (playlistPublicIdsBySongPublicId.size() > 0) {
+				readSongInfoDTO.setFavorite(true);
+			}
+			return readSongInfoDTO;
+		} else {
+			throw new ApiException(String.format("Unable to delete song from playlist"));
+		}
 	}
 
 	@Transactional(readOnly = true)

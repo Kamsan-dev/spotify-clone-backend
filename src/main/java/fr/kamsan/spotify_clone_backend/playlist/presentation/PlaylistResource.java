@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,5 +38,12 @@ public class PlaylistResource {
 	@PostMapping("/create")
 	public ResponseEntity<DisplayPlaylistDTO> create(@RequestParam @NotNull String title) {
 		return ResponseEntity.ok(playlistService.create(title));
+	}
+
+	@DeleteMapping("/delete-song-from-playlist")
+	public ResponseEntity<ReadSongInfoDTO> delete(@RequestParam UUID playlistPublicId,
+			@RequestParam UUID songPublicId) {
+		ReadSongInfoDTO deleteSongFromPlaylist = playlistService.deleteSongFromPlaylist(playlistPublicId, songPublicId);
+		return ResponseEntity.ok(deleteSongFromPlaylist);
 	}
 }

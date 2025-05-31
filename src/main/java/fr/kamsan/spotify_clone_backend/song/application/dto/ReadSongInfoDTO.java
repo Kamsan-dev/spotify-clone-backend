@@ -1,6 +1,7 @@
 package fr.kamsan.spotify_clone_backend.song.application.dto;
 
 import java.time.OffsetDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -34,7 +35,7 @@ public class ReadSongInfoDTO {
 
     private UUID playlistPublicId;       // nullable if no playlist association
     
-    private List<UUID> playlistPublicIds;
+    private List<UUID> playlistPublicIds = Collections.emptyList();
 
 	
 }

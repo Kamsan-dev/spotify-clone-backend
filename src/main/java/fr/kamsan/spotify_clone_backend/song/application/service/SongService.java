@@ -90,26 +90,18 @@ public class SongService {
 //				arr -> (Long) arr[1] // duration
 //		));
 
-
 		List<Object[]> findPlaylistPublicIdsOfSongUser = songRepository
 				.findPlaylistPublicIdsOfSongUser(connectedUser.publicId());
 		Map<UUID, List<UUID>> playlistPublicIdsBySongPublicIds = findPlaylistPublicIdsOfSongUser.stream()
-				.collect(Collectors.groupingBy(obj -> (UUID) obj[0], 	// key: songPublicId
-						Collectors.mapping(obj -> (UUID) obj[1], 		// value: playlistPublicId
+				.collect(Collectors.groupingBy(obj -> (UUID) obj[0], // key: songPublicId
+						Collectors.mapping(obj -> (UUID) obj[1], // value: playlistPublicId
 								Collectors.toList())));
-		
-		playlistPublicIdsBySongPublicIds.forEach((songId, playlistIds) ->
-	    System.out.println(songId + " -> " + playlistIds)
-	);
 
 		List<ReadSongInfoDTO> readSongInfoDTOList = songsList.stream().map(song -> {
 			ReadSongInfoDTO dto = songMapper.songToReadSongInfoDTO(song);
-			//dto.setDuration(new SongDurationVO(durationsById.get(song.getId())));
-			dto.setDuration(new SongDurationVO(song.getDuration()));
-			
-		dto.setPlaylistPublicIds(
-			    playlistPublicIdsBySongPublicIds.getOrDefault(song.getPublicId(), Collections.emptyList())
-			);
+
+			dto.setPlaylistPublicIds(
+					playlistPublicIdsBySongPublicIds.getOrDefault(song.getPublicId(), Collections.emptyList()));
 
 			// check if songs are part of favorite songs of connected user
 			if (playlistPublicIdsBySongPublicIds.containsKey(song.getPublicId())) {
