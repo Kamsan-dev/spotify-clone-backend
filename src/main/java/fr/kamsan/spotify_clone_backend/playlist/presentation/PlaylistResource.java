@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import fr.kamsan.spotify_clone_backend.playlist.application.dto.DisplayPlaylistDTO;
+import fr.kamsan.spotify_clone_backend.playlist.application.dto.DisplayPlaylistDetailsDTO;
 import fr.kamsan.spotify_clone_backend.playlist.application.service.PlaylistService;
 import fr.kamsan.spotify_clone_backend.song.application.dto.ReadSongInfoDTO;
 import jakarta.validation.constraints.NotNull;
@@ -33,6 +34,11 @@ public class PlaylistResource {
 	@GetMapping("/get-all")
 	public ResponseEntity<List<DisplayPlaylistDTO>> getAll() {
 		return ResponseEntity.ok(playlistService.getAll());
+	}
+
+	@GetMapping("/get-one")
+	public ResponseEntity<DisplayPlaylistDetailsDTO> getOne(@RequestParam UUID playlistPublicId) {
+		return ResponseEntity.ok(playlistService.getOne(playlistPublicId));
 	}
 
 	@PostMapping("/create")

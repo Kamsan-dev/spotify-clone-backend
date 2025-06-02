@@ -1,12 +1,16 @@
 package fr.kamsan.spotify_clone_backend.playlist.application.service;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import fr.kamsan.spotify_clone_backend.playlist.application.dto.DisplayPlaylistDTO;
+import fr.kamsan.spotify_clone_backend.playlist.application.dto.DisplayPlaylistDetailsDTO;
 import fr.kamsan.spotify_clone_backend.playlist.domain.Playlist;
 import fr.kamsan.spotify_clone_backend.playlist.domain.embedded.PlaylistSong;
 import fr.kamsan.spotify_clone_backend.playlist.domain.embedded.PlaylistSongId;
@@ -65,11 +69,11 @@ public class PlaylistService {
 		songToReadSongInfoDTO.setFavorite(true);
 		songToReadSongInfoDTO.setPlaylistPublicId(playlistPublicId);
 		songToReadSongInfoDTO.setDateAdded(savePlaylistSong.getCreatedAt());
-		
+
 		List<UUID> playlistPublicIdsBySongPublicId = playlistSongRepository
 				.findPlaylistPublicIdsBySongPublicId(song.getPublicId(), connectedUser.publicId());
 		songToReadSongInfoDTO.setPlaylistPublicIds(playlistPublicIdsBySongPublicId);
-		
+
 		if (playlistPublicIdsBySongPublicId.size() > 0) {
 			songToReadSongInfoDTO.setFavorite(true);
 		}
@@ -84,15 +88,13 @@ public class PlaylistService {
 
 		ReadUserDTO connectedUser = userService.getAuthenticatedUserFromSecurityContext();
 
-		Playlist playlist = playlistRepository
-				.findByPublicIdAndUser_PublicId(playlistPublicId, connectedUser.publicId())
-				.orElseThrow(() -> new ApiException(
-						String.format("Cannot retrieve playlist with public id %s", playlistPublicId)));
-
 		Long deleteSuccess = playlistSongRepository.deleteByPlaylist_publicIdAndSong_publicId(playlistPublicId,
 				songPublicId);
 		if (deleteSuccess > 0) {
 			ReadSongInfoDTO readSongInfoDTO = songMapper.songToReadSongInfoDTO(song);
+
+			// Retrieve the publicIDs of playlists owned by the connected user that contain
+			// the specified song
 			List<UUID> playlistPublicIdsBySongPublicId = playlistSongRepository
 					.findPlaylistPublicIdsBySongPublicId(song.getPublicId(), connectedUser.publicId());
 			readSongInfoDTO.setPlaylistPublicIds(playlistPublicIdsBySongPublicId);
@@ -112,6 +114,7 @@ public class PlaylistService {
 				.map(playlistMapper::playlistToDisplayPlaylistDTO).toList();
 	}
 
+	@Transactional
 	public DisplayPlaylistDTO create(String title) {
 		ReadUserDTO connectedUser = userService.getAuthenticatedUserFromSecurityContext();
 		User user = userService.getUserByPublicId(connectedUser.publicId()).orElseThrow(() -> new ApiException(
@@ -126,5 +129,43 @@ public class PlaylistService {
 		} catch (Exception e) {
 			throw new ApiException("Failed to create playlist");
 		}
+	}
+
+	@Transactional(readOnly = true)
+	public DisplayPlaylistDetailsDTO getOne(UUID playlistPublicId) {
+		ReadUserDTO connectedUser = userService.getAuthenticatedUserFromSecurityContext();
+		Playlist playlist = playlistRepository
+				.findByPublicIdAndUser_PublicId(playlistPublicId, connectedUser.publicId())
+				.orElseThrow(() -> new ApiException(
+						String.format("Cannot retrieve playlist with public id %s", playlistPublicId)));
+
+		List<PlaylistSong> PlaylistSongs = playlistSongRepository.findSongsByPlaylistPublicId(playlistPublicId,
+				connectedUser.publicId());
+
+		// get list of playlists where each songs is saved.
+
+		List<Object[]> findPlaylistPublicIdsOfSongUser = songRepository
+				.findPlaylistPublicIdsOfSongUser(connectedUser.publicId());
+		Map<UUID, List<UUID>> playlistPublicIdsBySongPublicIds = findPlaylistPublicIdsOfSongUser.stream()
+				.collect(Collectors.groupingBy(obj -> (UUID) obj[0], // key: songPublicId
+						Collectors.mapping(obj -> (UUID) obj[1], // value: playlistPublicId
+								Collectors.toList())));
+
+		List<ReadSongInfoDTO> readSongInfoDTOs = PlaylistSongs.stream().map(playlistSong -> {
+			ReadSongInfoDTO dto = songMapper.songToReadSongInfoDTO(playlistSong.getSong());
+			// list of playlists where song appears.
+			dto.setPlaylistPublicIds(
+					playlistPublicIdsBySongPublicIds.getOrDefault(playlistSong.getSong().getPublicId(),
+					Collections.emptyList()));
+			// get add date of song in playlist
+			dto.setDateAdded(playlistSong.getCreatedAt());
+			dto.setFavorite(true);
+			return dto;
+		}).toList();
+
+		DisplayPlaylistDetailsDTO playlistDTO = playlistMapper.playlistToDisplayPlaylistDetailsDTO(playlist);
+		playlistDTO.setSongs(readSongInfoDTOs);
+
+		return playlistDTO;
 	}
 }
