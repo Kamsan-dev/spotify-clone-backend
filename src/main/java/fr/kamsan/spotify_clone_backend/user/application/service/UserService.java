@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.auth0.json.auth.UserInfo;
 
 import fr.kamsan.spotify_clone_backend.infrastructure.config.SecurityUtils;
-import fr.kamsan.spotify_clone_backend.playlist.application.service.PlaylistService;
 import fr.kamsan.spotify_clone_backend.sharedkernel.exception.ApiException;
 import fr.kamsan.spotify_clone_backend.user.application.dto.ReadUserDTO;
 import fr.kamsan.spotify_clone_backend.user.domain.User;

@@ -8,5 +8,5 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 public record DisplayPlaylistDTO(@Valid PlaylistCoverDTO cover, @NotNull UUID publicId, @NotEmpty String title,
-		@NotNull boolean isLikedSongs) {
+		@NotNull boolean likedSongs) {
 }

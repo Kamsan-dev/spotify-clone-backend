@@ -9,8 +9,10 @@ import com.auth0.exception.Auth0Exception;
 import com.auth0.json.auth.UserInfo;
 
 import fr.kamsan.spotify_clone_backend.sharedkernel.exception.ApiException;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
+@Slf4j
 public class Auth0Service {
 
 	@Value("${okta.oauth2.client-id}")
@@ -27,8 +29,8 @@ public class Auth0Service {
 		try {
 			return authAPI.userInfo(jwtToken.getTokenValue()).execute().getBody();
 		} catch (Auth0Exception e) {
-			throw new ApiException(
-					String.format("not possible to fetch the user informations %s", jwtToken.getTokenValue()));
+			log.error("Failed to fetch user info from Auth0: {}", e.getMessage());
+			throw new ApiException("Not possible to fetch user information");
 		}
 	}
 

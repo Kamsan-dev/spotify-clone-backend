@@ -25,7 +25,6 @@ import fr.kamsan.spotify_clone_backend.song.repository.SongRepository;
 import fr.kamsan.spotify_clone_backend.user.application.dto.ReadUserDTO;
 import fr.kamsan.spotify_clone_backend.user.application.service.UserService;
 import fr.kamsan.spotify_clone_backend.user.domain.User;
-import fr.kamsan.spotify_clone_backend.user.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -40,7 +39,6 @@ public class PlaylistService {
 	private final UserService userService;
 	private final SongMapper songMapper;
 	private final PlaylistMapper playlistMapper;
-	private final UserMapper userMapper;
 
 	@Transactional
 	public ReadSongInfoDTO addSongToPlaylist(UUID playlistPublicId, UUID songPublicId) {
@@ -123,8 +121,7 @@ public class PlaylistService {
 			Playlist newPlaylist = new Playlist();
 			newPlaylist.setTitle(title);
 			newPlaylist.setUser(user);
-			Playlist savedPlaylist = playlistRepository.save(newPlaylist);
-
+			Playlist savedPlaylist = playlistRepository.saveAndFlush(newPlaylist);
 			return playlistMapper.playlistToDisplayPlaylistDTO(savedPlaylist);
 		} catch (Exception e) {
 			throw new ApiException("Failed to create playlist");

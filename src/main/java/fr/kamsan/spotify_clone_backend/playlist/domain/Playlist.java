@@ -38,7 +38,7 @@ public class Playlist extends AbstractAuditingEntity<Long> {
 	private Long id;
 
 	@UuidGenerator
-	@Column(name = "public_id", nullable = false)
+	@Column(name = "public_id", nullable = false, unique = true)
 	private UUID publicId;
 
 	@Column(name = "title")
@@ -51,12 +51,6 @@ public class Playlist extends AbstractAuditingEntity<Long> {
 	@JoinColumn(name = "user_public_id", referencedColumnName = "public_id", nullable = false)
 	private User user;
 	
-	
-//    @ManyToMany
-//    @JoinTable(name = "playlist_song",
-//            joinColumns = {@JoinColumn(name = "playlist_id", referencedColumnName = "id")},
-//            inverseJoinColumns = {@JoinColumn(name = "song_id", referencedColumnName = "id")})
-//    private List<Song> songs = new ArrayList<>();
 	
 	@OneToMany(mappedBy = "playlist", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<PlaylistSong> playlistSongs = new ArrayList<>();

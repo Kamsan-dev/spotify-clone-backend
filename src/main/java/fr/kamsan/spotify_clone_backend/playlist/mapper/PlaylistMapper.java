@@ -12,7 +12,8 @@ public interface PlaylistMapper {
 	
 	
     @Mapping(target = "cover", ignore = true)
-    @Mapping(source = "likedSongs", target = "isLikedSongs")
+    @Mapping(source = "likedSongs", target = "likedSongs")
+    @Mapping(source = "publicId", target="publicId")
 	DisplayPlaylistDTO playlistToDisplayPlaylistDTO(Playlist playlist);
     
     
