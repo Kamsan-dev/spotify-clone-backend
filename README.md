@@ -46,3 +46,11 @@ See the front-end application : https://github.com/Kamsan-dev/spotify-clone-fron
 - Database : PostgresSQL
 
 - API Communication: RESTful API integration
+
+## 💻 UI Preview
+
+#### Database schema
+
+<p align="center">
+    <img src="./Spotify-database-schema.PNG" style="width:950px;" alt=""/>
+</p>
