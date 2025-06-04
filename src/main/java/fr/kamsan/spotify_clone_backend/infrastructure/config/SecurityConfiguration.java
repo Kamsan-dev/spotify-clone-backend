@@ -1,4 +1,5 @@
 package fr.kamsan.spotify_clone_backend.infrastructure.config;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -19,45 +20,33 @@ import org.springframework.web.filter.CorsFilter;
 
 import lombok.RequiredArgsConstructor;
 
-
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfiguration {
 
-	 @Value("${spring.profiles.active}")
-	 private String activeProfiles;
-	 
-	 private final CorsConfiguration corsConfiguration;
-	 
+	@Value("${spring.profiles.active}")
+	private String activeProfiles;
 
-   @Bean
-   public SecurityFilterChain configure(HttpSecurity http) throws Exception {
-       CsrfTokenRequestAttributeHandler requestHandler = new CsrfTokenRequestAttributeHandler();
-       requestHandler.setCsrfRequestAttributeName(null);
-		http.cors(Customizer.withDefaults()).authorizeHttpRequests(authorize -> authorize
-                .anyRequest()
-                .authenticated())
-               .csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                       .csrfTokenRequestHandler(requestHandler))
-               .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
+	private final CorsConfiguration corsConfiguration;
 
-       if (activeProfiles.equals("prod")) {
-           http.requiresChannel(channel-> channel.anyRequest().requiresSecure());
-       }
+	@Bean
+	public SecurityFilterChain configure(HttpSecurity http) throws Exception {
+		CsrfTokenRequestAttributeHandler requestHandler = new CsrfTokenRequestAttributeHandler();
+		requestHandler.setCsrfRequestAttributeName(null);
+		http.cors(Customizer.withDefaults()).authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated())
+				.csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+						.csrfTokenRequestHandler(requestHandler))
+				.oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
 
-       return http.build();
-   }
-	 
-//	 @Bean
-//	 public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-//	     http
-//	         .csrf(csrf -> csrf.disable())
-//	         .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
-//	     return http.build();
-//	 }
-	
+		if (activeProfiles.equals("prod")) {
+			http.requiresChannel(channel -> channel.anyRequest().requiresSecure());
+		}
+
+		return http.build();
+	}
+
 	@Bean
 	public FilterRegistrationBean<CorsFilter> simpleCorsFilter() {
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
